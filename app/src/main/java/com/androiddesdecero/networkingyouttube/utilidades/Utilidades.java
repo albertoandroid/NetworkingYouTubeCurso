@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by albertopalomarrobledo on 16/3/18.
@@ -25,7 +26,7 @@ public class Utilidades {
 
     public static final String LOG_TAG = Utilidades.class.getSimpleName();
 
-    public static String obtenerDatos(String requestUrl) {
+    public static Tiempo obtenerDatos(String requestUrl) {
         URL url = createUrl(requestUrl);
 
         String jsonResponse = null;
@@ -34,7 +35,8 @@ public class Utilidades {
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error closing input stream", e);
         }
-        return jsonResponse;
+        Tiempo tiempo = extractFeatureFromJson(jsonResponse);
+        return tiempo;
     }
 
     private static URL createUrl(String stringUrl) {
@@ -94,5 +96,30 @@ public class Utilidades {
             }
         }
         return output.toString();
+    }
+
+    private static Tiempo extractFeatureFromJson(String tiempoJSON) {
+        if (TextUtils.isEmpty(tiempoJSON)) {
+            return null;
+        }
+        List<Tiempo> tiempos = new ArrayList<>();
+
+        try {
+            JSONObject baseJsonResponse = new JSONObject(tiempoJSON);
+            JSONArray listArray = baseJsonResponse.getJSONArray("list");
+
+            for (int i=0; i<listArray.length();i++){
+                JSONObject firstFeature = listArray.getJSONObject(i);
+                String fecha = firstFeature.getString("dt");
+                JSONObject main = firstFeature.getJSONObject("main");
+                String temperatura = main.getString("temp");
+                //Tiempo tiempo = new Tiempo(temperatura,fecha);
+                //tiempos.add(tiempo);
+                return new Tiempo(temperatura, fecha);
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Problemas", e);
+        }
+        return null;
     }
 }
