@@ -26,7 +26,7 @@ public class Utilidades {
 
     public static final String LOG_TAG = Utilidades.class.getSimpleName();
 
-    public static Tiempo obtenerDatos(String requestUrl) {
+    public static List<Tiempo> obtenerDatos(String requestUrl) {
         URL url = createUrl(requestUrl);
 
         String jsonResponse = null;
@@ -35,8 +35,8 @@ public class Utilidades {
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error closing input stream", e);
         }
-        Tiempo tiempo = extractFeatureFromJson(jsonResponse);
-        return tiempo;
+        List<Tiempo> tiempos = extractFeatureFromJson(jsonResponse);
+        return tiempos;
     }
 
     private static URL createUrl(String stringUrl) {
@@ -98,7 +98,7 @@ public class Utilidades {
         return output.toString();
     }
 
-    private static Tiempo extractFeatureFromJson(String tiempoJSON) {
+    private static List<Tiempo> extractFeatureFromJson(String tiempoJSON) {
         if (TextUtils.isEmpty(tiempoJSON)) {
             return null;
         }
@@ -113,13 +113,12 @@ public class Utilidades {
                 String fecha = firstFeature.getString("dt");
                 JSONObject main = firstFeature.getJSONObject("main");
                 String temperatura = main.getString("temp");
-                //Tiempo tiempo = new Tiempo(temperatura,fecha);
-                //tiempos.add(tiempo);
-                return new Tiempo(temperatura, fecha);
+                Tiempo tiempo = new Tiempo(temperatura,fecha);
+                tiempos.add(tiempo);
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Problemas", e);
         }
-        return null;
+        return tiempos;
     }
 }
